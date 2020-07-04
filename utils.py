@@ -116,7 +116,6 @@ class TextSequenceGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         for i, id_ in enumerate(ids):
-
             img = cv2.imread(self.imgs[id_], cv2.IMREAD_GRAYSCALE)  # (h, w)
             if img is None:
                 continue
@@ -142,8 +141,10 @@ class TextSequenceGenerator(tf.keras.utils.Sequence):
                 img = np.expand_dims(img, -1)  # (h, w, 1)
                 img = img.transpose((1, 0, 2))  # (w, h, 1)
 
-            X[i] = img
             text2label = text_to_labels(self.chars, self.gt_texts[id_])
+            if (len(text2label) > self.max_text_len):
+                continue
+            X[i] = img
             Y[i] = text2label + \
                    [self.blank_label for _ in range(
                        self.max_text_len - len(text2label))]
