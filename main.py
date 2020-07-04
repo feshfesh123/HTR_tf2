@@ -83,6 +83,6 @@ def main_infer():
     predict(1, 1)
 
 if __name__ == "__main__":
-    predict(1, 0)
+    #predict(1, 0)
 
-    #   main_train()
+    main_train()

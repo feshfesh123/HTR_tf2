@@ -1,9 +1,8 @@
 import enum
 
 import tensorflow as tf
-from tensorflow_core.python.keras.engine.input_layer import Input
 from tensorflow.keras import layers, Model, backend
-
+from tensorflow.keras.layers import Input
 from net_config import ArchitectureConfig
 
 class CRNN_MODE(enum.Enum):
