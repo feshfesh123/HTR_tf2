@@ -111,7 +111,7 @@ class TextSequenceGenerator(tf.keras.utils.Sequence):
         Y = np.ones([size, self.max_text_len])
         #         input_length = np.ones((size, 1), dtype=np.float32) * \
         #             (self.img_w // self.downsample_factor - 2)
-        input_length = np.ones((size, 1), dtype=np.float32) * (ArchitectureConfig.MAX_TEXT_LENGTH - 2)
+        input_length = np.ones((size, 1), dtype=np.float32) * (ArchitectureConfig.MAX_TEXT_LENGTH)
         label_length = np.zeros((size, 1), dtype=np.float32)
 
         # Generate data
