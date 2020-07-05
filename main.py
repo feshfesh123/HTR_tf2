@@ -74,7 +74,7 @@ def predict(index_batch, index_img):
 
 def main_train():
     no_epochs = 15
-    model, y_func = train(start = 0, end = 35, no_epochs = no_epochs)
+    model, y_func = train(start = 0, end = 7000, no_epochs = no_epochs)
 
     model.save_weights(FilePaths.fnSave)
 

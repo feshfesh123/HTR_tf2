@@ -56,7 +56,7 @@ def load_data(start = 0, end = 1000):
             with open(label_name, encoding="utf-8-sig") as f:
                 lines = f.readlines()
                 word = lines[0]
-            if word != None:
+            if word != None and len(word) > 0 and len(word) <= ArchitectureConfig.MAX_TEXT_LENGTH:
                 samples.append(Sample(word, image_path))
 
     print("Load data successfull - ", len(samples)," images")
@@ -119,8 +119,6 @@ class TextSequenceGenerator(tf.keras.utils.Sequence):
             img = cv2.imread(self.imgs[id_], cv2.IMREAD_GRAYSCALE)  # (h, w)
             if img is None:
                 continue
-
-
             #             img = 255 - img  # bg: black, text: white
             # bg: white, text: black
             (wt, ht) = self.img_size
