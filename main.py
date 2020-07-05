@@ -15,7 +15,7 @@ import os
 def train(start = 0, end = 1000, no_epochs = ArchitectureConfig.EPOCHS):
     data = load_data(start, end)
     no_samples = len(data)
-    no_train_set = int(no_samples * 0.75)
+    no_train_set = int(no_samples * 0.95)
     no_val_set = no_samples - no_train_set
 
     train_set = TextSequenceGenerator(data[:no_train_set])
@@ -49,7 +49,7 @@ def train(start = 0, end = 1000, no_epochs = ArchitectureConfig.EPOCHS):
 def predict(index_batch, index_img):
     data = load_data(start = 0, end = 1000)
     no_samples = len(data)
-    no_train_set = int(no_samples * 0.75)
+    no_train_set = int(no_samples * 0.95)
     no_val_set = no_samples - no_train_set
 
     test_set = TextSequenceGenerator(data[no_train_set:])
