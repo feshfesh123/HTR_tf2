@@ -17,4 +17,4 @@ class FilePaths:
     fnCharList = '../model/charList.txt'
     fnAccuracy = '../model/accuracy.txt'
     fnDataPreProcessed = '../new_data/'
-    fnDataCollection = ['../vi_00/', '../vi_01']
+    fnDataCollection = ['../vi_00/', '../vi_01/']

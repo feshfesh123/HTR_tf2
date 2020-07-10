@@ -4,9 +4,8 @@ import cv2
 import numpy as np
 from shutil import copyfile
 
-def remove_invalid_data(start = 0, end = 1000):
+def remove_invalid_data(root = FilePaths.fnDataset):
     print("Data Error...")
-    root = FilePaths.fnDataset
     file_list = os.listdir(root)
     chars = ArchitectureConfig.CHARS
     count = 0
@@ -15,16 +14,18 @@ def remove_invalid_data(start = 0, end = 1000):
             label_name = os.path.join(root, file_name)
             file_image = file_name.replace("txt", "jpg")
             image_name = os.path.join(root, file_image)
+            print(label_name)
             with open(label_name, encoding="utf-8-sig") as f:
                 lines = f.readlines()
                 word = lines[0]
                 for ch in list(word):
                     if (chars.count(ch) == 0):
+                        print(label_name)
                         os.remove(label_name)
                         os.remove(image_name)
                         count+=1
                         break
-    print("Removed ", count," wrong datas !!!")
+    print("Removed ", count," invalid datas in ", root, " !!!")
 
 BINARY_THREHOLD = 180
 
@@ -68,6 +69,9 @@ def remove_noise_and_smooth(file_name):
 def preprocess_all_data():
     i = 1
     for root in FilePaths.fnDataCollection:
+        # Remove data invalid
+        remove_invalid_data(root)
+        # Preprocess data
         file_list = os.listdir(root)
         for file_name in file_list:
             if file_name.endswith(".png") or file_name.endswith(".jpg"):
