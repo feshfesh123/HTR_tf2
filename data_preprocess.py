@@ -14,13 +14,11 @@ def remove_invalid_data(root = FilePaths.fnDataset):
             label_name = os.path.join(root, file_name)
             file_image = file_name.replace("txt", "jpg")
             image_name = os.path.join(root, file_image)
-            print(label_name)
             with open(label_name, encoding="utf-8-sig") as f:
                 lines = f.readlines()
                 word = lines[0]
                 for ch in list(word):
                     if (chars.count(ch) == 0):
-                        print(label_name)
                         os.remove(label_name)
                         os.remove(image_name)
                         count+=1
