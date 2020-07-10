@@ -7,12 +7,14 @@ from net_config import ArchitectureConfig
 from utils import load_data, TextSequenceGenerator, decode_predict_ctc, labels_to_text
 from net_config import FilePaths
 import numpy as np
+import cv2
+from utils import Sample
 import enum
 import os
 
 
 
-def train(start = 0, end = 1000, no_epochs = ArchitectureConfig.EPOCHS):
+def train(mustRestore = True, start = 0, end = 1000, no_epochs = ArchitectureConfig.EPOCHS):
     data = load_data(start, end)
     no_samples = len(data)
     no_train_set = int(no_samples * 0.95)
@@ -22,8 +24,11 @@ def train(start = 0, end = 1000, no_epochs = ArchitectureConfig.EPOCHS):
     test_set = TextSequenceGenerator(data[no_train_set:])
 
     model, y_func = CRNN_model(CRNN_MODE.training)
-    if os.path.isfile(FilePaths.fnSave):
+    if mustRestore == True:
+        print("Restored model !")
         model.load_weights(FilePaths.fnSave)
+    else:
+        print("Train new model !")
 
     sgd = SGD(lr=0.02, decay=1e-6, momentum=0.9, nesterov=True, clipnorm=5)
     model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=sgd)
@@ -46,19 +51,16 @@ def train(start = 0, end = 1000, no_epochs = ArchitectureConfig.EPOCHS):
 
     return model, y_func
 
-def predict(index_batch, index_img):
-    data = load_data(start = 0, end = 1000)
-    no_samples = len(data)
-    no_train_set = int(no_samples * 0.95)
-    no_val_set = no_samples - no_train_set
-
-    test_set = TextSequenceGenerator(data[no_train_set:])
-
+def predict(img_path):
     model = CRNN_model(CRNN_MODE.inference)
     model.load_weights(FilePaths.fnSave)
+    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    data = [Sample("", img_path)]
+    test_set = TextSequenceGenerator(data)
 
-    samples = test_set[index_batch]
-    img = samples[0]['the_input'][index_img]
+    samples = test_set[0]
+    img = samples[0]['the_input'][0]
+
     chars_ = ArchitectureConfig.CHARS
 
     # plt.imshow(np.squeeze(img).T)
@@ -68,21 +70,12 @@ def predict(index_batch, index_img):
     print(net_out_value.shape)
     pred_texts = top_pred_texts = decode_predict_ctc(net_out_value, chars_)
     print(pred_texts)
-    gt_texts = test_set[index_batch][0]['the_labels'][index_img]
-    gt_texts = labels_to_text(chars_, gt_texts.astype(int))
-    print(gt_texts)
 
 def main_train():
     no_epochs = 15
-    model, y_func = train(start = 0, end = 7000, no_epochs = no_epochs)
+    model, y_func = train(mustRestore = False, start = 0, end = 7000, no_epochs = no_epochs)
 
-    model.save_weights(FilePaths.fnSave)
-
-def main_infer():
-    predict(1, 0)
-    predict(1, 1)
+    #model.save_weights(FilePaths.fnSave)
 
 if __name__ == "__main__":
-    #predict(1, 0)
-
     main_train()

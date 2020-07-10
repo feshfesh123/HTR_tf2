@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import time
 import datetime
-
+from data_preprocess import remove_noise_and_smooth
 def labels_to_text(letters, labels):
     return ''.join(list(map(lambda x: letters[x] if x < len(letters) else "", labels)))  # noqa
 
@@ -39,7 +39,7 @@ class Sample:
 def load_data(start = 0, end = 1000):
     print("Loading data...")
     start_time = time.time()
-    root = FilePaths.fnDataset
+    root = FilePaths.fnDataPreProcessed
     file_list = os.listdir(root)
     max_file = len(file_list)
     if end > max_file:
@@ -50,13 +50,13 @@ def load_data(start = 0, end = 1000):
         file_name = file_list[i]
         if file_name.endswith(".png") or file_name.endswith(".jpg"):
             label_path = file_name.replace(".jpg", ".txt")
-            label_path = file_name.replace(".png", ".txt")
+            label_path = label_path.replace(".png", ".txt")
             label_name = os.path.join(root, label_path)
             image_path = os.path.join(root, file_name)
-            with open(label_name, encoding="utf-8-sig") as f:
+            with open(label_name, encoding="utf-8-sig" ) as f:
                 lines = f.readlines()
                 word = lines[0]
-            if word != None and len(word) > 0 and len(word) <= ArchitectureConfig.MAX_TEXT_LENGTH:
+            if word != None and len(word) > 0 and len(word) <= ArchitectureConfig.MAX_TEXT_LENGTH - 2:
                 samples.append(Sample(word, image_path))
 
     print("Load data successfull - ", len(samples)," images")
@@ -111,7 +111,7 @@ class TextSequenceGenerator(tf.keras.utils.Sequence):
         Y = np.ones([size, self.max_text_len])
         #         input_length = np.ones((size, 1), dtype=np.float32) * \
         #             (self.img_w // self.downsample_factor - 2)
-        input_length = np.ones((size, 1), dtype=np.float32) * (ArchitectureConfig.MAX_TEXT_LENGTH)
+        input_length = np.ones((size, 1), dtype=np.float32) * ( 2*ArchitectureConfig.MAX_TEXT_LENGTH - 2)
         label_length = np.zeros((size, 1), dtype=np.float32)
 
         # Generate data
@@ -119,18 +119,6 @@ class TextSequenceGenerator(tf.keras.utils.Sequence):
             img = cv2.imread(self.imgs[id_], cv2.IMREAD_GRAYSCALE)  # (h, w)
             if img is None:
                 continue
-            #             img = 255 - img  # bg: black, text: white
-            # bg: white, text: black
-            (wt, ht) = self.img_size
-            (h, w) = img.shape
-            fx = w / wt
-            fy = h / ht
-            f = max(fx, fy)
-            newSize = (max(min(wt, int(w / f)), 1), max(min(ht, int(h / f)), 1))
-            resized_image = cv2.resize(img, newSize)  # (h, w)
-            target = np.ones([ht, wt]) * 255
-            target[0:newSize[1], 0:newSize[0]] = resized_image
-            img = target / 255  # (h, w)
 
             if backend.image_data_format() == 'channels_first':
                 img = np.expand_dims(img, 0)  # (1, h, w)

@@ -13,7 +13,7 @@ def ctc_lambda_func(args):
     y_pred, labels, input_length, label_length = args
     # the 2 is critical here since the first couple outputs of the RNN
     # tend to be garbage:
-    #y_pred = y_pred[:, :, :]
+    y_pred = y_pred[:, 2:, :]
 
     res = backend.ctc_batch_cost(labels, y_pred, input_length, label_length)
     return res
@@ -45,7 +45,7 @@ def CRNN_model(crnn_mode):
 
     conv_5 = layers.Conv2D(filters=256, kernel_size=3, padding='same', activation='relu')(conv_4)
 
-    pool_5 = layers.MaxPool2D(pool_size=2, strides=(2, 2), padding='same')(conv_5)
+    pool_5 = layers.MaxPool2D(pool_size=(1,2), strides=(1, 2), padding='same')(conv_5)
 
     conv_6 = layers.Conv2D(filters=512, kernel_size=3, padding='same', activation='relu')(pool_5)
 
